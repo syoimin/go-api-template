@@ -15,8 +15,11 @@ Docker outside of docker を利用した Go + SAM の RESTful API のサンプ�
 フレームワーク・モジュール
 
 -   gin ・・・ go RESTFul API フレームワーク
+
+GO ローカル環境モジュール
+
 -   migrate ・・・ DB マイグレーション（RDS を利用する場合）
--   go-outline ・・・ コードでバッグ用 （VSCode 専用かも）
+-   go-outline ・・・ コードデバッグ用 （VSCode 専用かも）
 -   mockgen ・・・ モック
 -   godoc ・・・ GO ドキュメント生成
 
