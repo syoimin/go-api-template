@@ -1,0 +1,64 @@
+version: "3.5"
+services:
+  sample-api-app:
+    container_name: sample-api-app
+    build:
+      context: ./Dockerfiles/go/
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    working_dir: /go/src/github.com/syoimin/go-api-template
+    env_file:
+      ./.env
+    environment:
+      - GOPRIVATE=github.com/syoimin/go-api-template # 自プロジェクトで管理しているパッケージをダウンロードするための github のプロジェクトURL
+    volumes:
+      - .:/go/src/github.com/syoimin/go-api-template # go のソースディレクトリにマウント /go/src/<githubURL>/<ユーザ>/<プロジェクト名>
+      - ~/.ssh:/root/.ssh # 自作パッケージをインストールする際の SSH 接続
+      - ~/.gitconfig:/root/.gitconfig
+      - ~/.aws:/root/.aws
+    networks:
+      - sample-network
+
+  sample-aws-sam:
+    container_name: sample-aws-sam
+    ports:
+      - "3000:3000"
+    build:
+      context: ./Dockerfiles/python/
+      dockerfile: Dockerfile
+    image: sample-aws-sam
+    tty: true
+    stdin_open: true
+    # working_dir: /app
+    # 不具合： docker-volume-basedir が workdir と vlumes の相対パスでの組み合わせの場合効かないため
+    # https://github.com/aws/aws-sam-cli/issues/963
+    # 一時解決策：https://github.com/aws/aws-sam-cli/issues/2837
+    environment: # sam の方から host へマウントする際デフォルトでは、コンテナのパスでマウントするので、ホスト側のカレントディレクトリまでのパスを教えてあげる。
+      - VOLUME=$PWD
+    volumes:
+      - $PWD:$PWD
+      - ~/.aws:/root/.aws
+      - /var/run/docker.sock:/var/run/docker.sock # AWS SAM Localをdocker-composeと使うときに必要(docker outside of docker)
+    networks:
+      - sample-network
+
+  sample-swagger:
+    container_name: sample-swagger
+    ports:
+      - "8081:8080"
+    image: swaggerapi/swagger-editor
+    working_dir: /app
+    environment:
+      - SWAGGER_FILE=/app/swagger.yml
+    volumes:
+      - .:/app
+      - ~/.aws:/root/.aws
+    networks:
+      - sample-network
+
+# SAM local がデフォルトのネットワークを認識してくれないので明示的に定義
+networks:
+  sample-network:
+    name: sample-network
+    driver: bridge
