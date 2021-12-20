@@ -69,3 +69,20 @@ aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxx
 # sam local の実行 Cognito を使う場合
 sam local start-api --host 0.0.0.0 --container-host host.docker.internal --debug --docker-volume-basedir $PWD --docker-network sample-network  --profile sample --parameter-overrides ParameterKey=AllowOrigin,ParameterValue="*"
 ```
+
+## Go Build 実行
+
+```sh
+# 依存モジュールのインストール
+go mod tidy
+
+# 仮実行
+go run main.go
+
+# コンパイル
+CGO_ENABLED=0 GOOS=linux go build -v -a -installsuffix cgo -o ./main ./main.go
+
+# テストコマンド
+CGO_ENABLED=0 GOOS=linux go test ./... -v
+
+```
