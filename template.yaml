@@ -36,7 +36,7 @@ Resources:
       # Auth:
       #   Authorizers:
       #     MyCognitoAuth:
-      #       UserPoolArn: !Ref SystemUserPoolArn
+      #       UserPoolArn: !Ref UserPoolArn
       #   DefaultAuthorizer: MyCognitoAuth
       # CORS の設定
       Cors:
