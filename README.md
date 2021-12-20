@@ -4,7 +4,7 @@ Docker outside of docker を利用した Go + SAM の RESTful API のサンプ�
 
 ## 技術要素
 
-ランタイム・インフラ環境
+### ランタイム・インフラ環境
 
 -   Docker outside of docker ・・・ ローカル Docker 開発環境
 -   AWS Lambda ・・・ Lambda のランタイム環境
@@ -12,18 +12,26 @@ Docker outside of docker を利用した Go + SAM の RESTful API のサンプ�
 -   Python ・・・ SAM CLI の実行環境
     -   AWS SAM cli
 
-フレームワーク・モジュール
+### フレームワーク・モジュール
 
 -   gin ・・・ go RESTFul API フレームワーク
+-   aws-lambda-go ・・・ go と lambda の連携用ライブラリ
+-   aws-lambda-go-api-proxy ・・・ go で Gin を利用するためのライブラリ
+-   cors ・・ CORS の設定ライブラリ
+-   errors ・・・ エラー処理ライブラリ
+-   driver/mysql ・・・ MySQL ドライバー
+-   gorm ・・・ go OR マッパー
 
-GO ローカル環境モジュール
+### GO ローカル環境モジュール
 
 -   migrate ・・・ DB マイグレーション（RDS を利用する場合）
 -   go-outline ・・・ コードデバッグ用 （VSCode 専用かも）
 -   mockgen ・・・ モック
 -   godoc ・・・ GO ドキュメント生成
 
-## SAM Local の実行
+## 実行方法
+
+### SAM Local の実行
 
 ローカル環境の確認用サーバの起動
 
@@ -38,7 +46,7 @@ cd ${VOLUME}
 
 ```
 
-### Cognito を使わない場合
+#### Cognito を使わない場合
 
 `--parameter-overrides` で `template.yaml` の parameter を上書きできる。
 
@@ -46,7 +54,7 @@ cd ${VOLUME}
 sam local start-api --host 0.0.0.0 --container-host host.docker.internal --debug --docker-volume-basedir $PWD --docker-network sample-network --parameter-overrides ParameterKey=AllowOrigin,ParameterValue="*"
 ```
 
-### Cognito を使う場合
+#### Cognito を使う場合
 
 `--parameter-overrides` で `template.yaml` の parameter を上書きできる。
 
