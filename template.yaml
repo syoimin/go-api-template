@@ -72,6 +72,11 @@ Resources:
             Path: /test
             Method: POST
             RestApiId: !Ref Api
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Environment
+          ALLOW_ORIGIN: !Ref AllowOrigin
+
 Outputs:
   Api:
     Description: "API Gateway endpoint URL for Prod environment for First Function"
