@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Sample SAM Template
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 10
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+  StageName:
+    Type: String
+    Default: "Local"
+  SecurityGroupIds:
+    Type: List<AWS::EC2::SecurityGroup::Id>
+    Default: sg-xxxxxxxxxxxxxxx
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Default: "subnet-xxxxxxxxxxx,subnet-yyyyyyyyyyyyy"
+  AllowOrigin:
+    Type: String
+    Default: "http://localhost.com"
+
+Resources:
+  Api:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Ref "AWS::StackName"
+      StageName: !Ref StageName
+      OpenApiVersion: 3.0.0
+      # Cognito オーソライザーを利用する場合はコメントアウトを外す
+      # Auth:
+      #   Authorizers:
+      #     MyCognitoAuth:
+      #       UserPoolArn: !Ref SystemUserPoolArn
+      #   DefaultAuthorizer: MyCognitoAuth
+      # CORS の設定
+      Cors:
+        AllowMethods: "'POST, GET, OPTIONS, DELETE, PATCH, PUT'"
+        AllowHeaders: "'X-Forwarded-For,Authorization'"
+        AllowOrigin: !Sub "'${AllowOrigin}'"
+        AllowCredentials: "'true'"
+  Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sample/
+      Handler: main
+      Runtime: go1.x
+      Tracing: Active
+      VpcConfig:
+        SecurityGroupIds: !Ref SecurityGroupIds
+        SubnetIds: !Ref SubnetIds
+      Policies:
+        - AmazonCognitoPowerUser
+      Events:
+        Ping:
+          Type: Api
+          Properties:
+            Path: /ping
+            Method: GET
+            RestApiId: !Ref Api
+            # 認証なしの API パスの場合 NONE を設定
+            # Auth:
+            #   Authorizer: NONE
+        test:
+          Type: Api
+          Properties:
+            Path: /test
+            Method: POST
+            RestApiId: !Ref Api
+Outputs:
+  Api:
+    Description: "API Gateway endpoint URL for Prod environment for First Function"
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/ping/"
+  Function:
+    Description: "First Lambda Function ARN"
+    Value: !GetAtt Function.Arn
